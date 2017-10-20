@@ -1,0 +1,174 @@
+\section{Part IV - State Estimation}\label{sec:part4}
+
+\subsection{Problem 1 - State-space formulation}\label{subsec:P4p1}
+We wish to derive a state-space formulation from the system of linearized equations derived in \ref{subsec:P1p2} on the form
+
+\begin{equation}\label{eq:state-space}
+\begin{split}
+    \mathbf{\dot{x}} &= \mathbf{Ax + Bu}\\
+    \mathbf{y} &= \mathbf{Cx}
+\end{split}
+\end{equation}
+where \textbf{A, B} and \textbf{C} are matrices defined below. The state vector, the input vector and the output vector are now given by:
+
+\begin{align}\label{eq:states_part4}
+    \textbf{x} &= \begin{bmatrix} \tilde{p} \\ \dot{\tilde{p}} \\ \tilde{e} \\ \dot{\tilde{e}} \\ \tilde{\lambda} \\ \dot{\tilde{\lambda}} \end{bmatrix}, &\textbf{u} &= \begin{bmatrix} \tilde{V_{s}} \\ \tilde{V_{d}} \end{bmatrix}, &\mathbf{y} &= \begin{bmatrix} \tilde{p} \\ \tilde{e} \\ \tilde{\lambda} \end{bmatrix}
+\end{align}
+From the output equation and the state vector, we can directly see that the matrix \textbf{C} is given by 
+\begin{equation}
+    \mathbf{C} = 
+    \begin{bmatrix}
+    1 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 0
+    \end{bmatrix}
+\end{equation}
+Furthermore, using the equations \eqref{eq:lin_model_pitch}-\eqref{eq:lin_model_travel}, the state equation can be written as
+\begin{equation}\nonumber
+    \mathbf{\dot{x}} = 
+    \begin{bmatrix} 
+        \dot{\tilde{p}} \\ 
+        \ddot{\tilde{p}} \\ 
+        \dot{\tilde{e}} \\ 
+        \ddot{\tilde{e}} \\ 
+        \dot{\tilde{\lambda}}\\ 
+        \ddot{\tilde{\lambda}} 
+    \end{bmatrix} = 
+    \begin{bmatrix} 
+        x_{2}\\ 
+        K_1\tilde{V_d}\\ 
+        x_4\\ 
+        K_2\tilde{V_s}\\ 
+        x_6\\ 
+        K_3 x_1 
+    \end{bmatrix} = \mathbf{Ax + Bu}
+\end{equation}
+which gives us the matrices
+\begin{align}\label{eq:state_matrices_P4p1}
+    &\mathbf{A} = \begin{bmatrix}
+        0 & 1 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 1 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 1 \\
+        K_3 & 0 & 0 & 0 & 0 & 0
+    \end{bmatrix}, 
+    &\mathbf{B} = 
+    \begin{bmatrix}
+        0 & 0 \\
+        0 & K_1 \\
+        0 & 0 \\
+        K_2 & 0 \\
+        0 & 0 \\
+        0 & 0 
+    \end{bmatrix}
+\end{align}
+
+\subsection{Problem 2 - Linear observer}\label{subsec:P4p2}
+
+In order to examine the observability of the system, we calculate the observabiliy matrix using
+\begin{equation}\label{eq:obs_matrix}
+    {\mathcal {O}}={\begin{bmatrix}C\\CA\\CA^{2}\\\vdots \\CA^{n-1}\end{bmatrix}}
+\end{equation}
+We know that the criteria for a system to be observable is that \eqref{eq:obs_matrix} has full rank. In our case, this is achieved after the two first computations in the observability matrix:
+\begin{equation}\label{eq:obs_matrix_calc}
+    {\mathcal {O}}_{2}=
+    {\begin{bmatrix}
+        1 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 1 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 1 & 0\\
+        0 & 1 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 1 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 1
+    \end{bmatrix}}
+\end{equation}
+Hence, our system is indeed observable.
+\\Next, we wish to create a linear observer for the system of the form:
+\begin{equation}\label{observer_system}
+    \mathbf{\dot{\hat{x}} = A\hat{x} + Bu + L(y - C\hat{x})}
+\end{equation}
+where \textbf{L} is the observer gain matrix.
+Because the system is observable, we have the opportunity to place the poles of the system where we want, in order to obtain an optimal response. We can do this by choosing an appropriate gain matrix \textbf{L}. The estimator $\mathbf{\hat{x}}$ has the same poles as $\mathbf{A - LC}$. Generally, we want the error dynamics to be faster than the system itself. In practice, this means that the poles of $\mathbf{A - LC}$ should be placed further into the left half plane than the poles of $\mathbf{A - BK}$, which represents the system dynamics. Abiding by the [HVEM FANT PÅ DETTE] principle, we place the estimator poles on a circular arc in the left half plane, shown in [VIS FIGUR!!]The radius of this arc is determined by a multiple of the distance to the most negative pole of the original system. MATLAB provides a simple function place() to compute the observer gain matrix \textbf{L}. MATLAB code for implementing this is shown in [LEGG IN KODE]. \\
+\\Choosing a good gain matrix will be very important for this system, because although we want a fast estimator, the further into the left half plane the estimator poles are located, the more we will amplify noise in the measurements. In our project, we ended up placing the estimator poles on an arc with radius 13 times the distance of the most negative pole from the original system.\\
+\\As in part 3, we tried tuning with different values for the matrices \textbf{Q} and \textbf{R} until the desired behavoiur was reached. We seemed however to get the best results with similar values as in part III, see [REFERER TIL Q, R, K]. With the computed gain matrix
+\begin{equation}\nonumber
+\mathbf{L} = \begin{bmatrix}
+97,94 & 6,20 & -13,90\\
+2476,40 & 318,65 & -725,98\\
+-2,47 & 98,99 &	1,78\\
+-114,14 & 2600,04 &	80,90\\
+15,36 & 2,71 & 96,90\\
+786,98 & -148,13 & 2412,86
+\end{bmatrix}
+\end{equation}
+
+We were able to reach satisfying results with both controllers from part III, plots of the estimated values versus the real values for both controllers are shown below, as well as a simulink-diagram to show the implementation of the observer.
+LEGG INN PLOTTS HER! REAL VS ESTIMATE PÅ BEGGE TO
+
+SIMULINK AV OBSERVER!
+
+\subsection{Problem 3 - Observer without pitch}\label{subsec:P4p3}
+We aim to control our system by only measuring $\tilde{e}$ and $\tilde{\lambda}$. The output matrix \textbf{C} becomes:
+\begin{equation}\label{eq:C_P4p3}
+\mathbf{C} = 
+    \begin{bmatrix}
+    0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 0 
+    \end{bmatrix}
+\end{equation}
+Again, as in \ref{subsec:P4p2}, we use \eqref{eq:obs_matrix} to examine if the system is observable:
+\begin{equation}\label{eq:obs_matrix_calc_last}
+    \mathcal {O}=
+    {\begin{bmatrix}
+        0 & 0 & 1 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 1 & 0\\
+        0 & 0 & 0 & 1 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 1\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        -K_3 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & -K_3 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0
+    \end{bmatrix}}
+\end{equation}
+We can clearly see that \eqref{eq:obs_matrix_calc_last} has full rank, so the system is observable when measuring only $\tilde{e}$ and $\tilde{\lambda}$. However, if one only measures $\tilde{p}$ and $\tilde{e}$, this is not the case! The output matrix becomes:
+\begin{equation}\nonumber
+\mathbf{C} = 
+    \begin{bmatrix}
+    1 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 1 & 0 & 0 & 0 
+    \end{bmatrix}
+\end{equation},
+which leads to the observability matrix
+\begin{equation}\nonumber
+    \mathcal {O}=
+    {\begin{bmatrix}
+        1 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 1 & 0 & 0 & 0\\
+        0 & 1 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 1 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0 & 0 & 0
+    \end{bmatrix}}
+\end{equation}
+Now, the observability matrix has rank 4, which is not full rank. Hence, the system is not observable and it will be impossible to control with a state estimator. This is due to the fact that the pitch, $\tilde{p}$, can be found by differentiating $tilde{\lambda}$ twice and multiplying with a constant $K_3$. [SETT INN REFERANSE FRA OPPG1]. This is not the case for ...... 
+
+\begin{equation}\nonumber
+\mathbf{L} = \begin{bmatrix}
+14,62 &	0,69 & -2,08\\
+55,29 & 5,41 & -16,11\\
+-0,13 & 14,51 & 0,48\\
+-0,60 & 55,75 & 3,37\\
+2,27 & -0,65 & 14,27\\
+16,44 & -5,27 & 52,36
+\end{bmatrix}
+\end{equation}
