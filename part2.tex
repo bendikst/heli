@@ -1,3 +1,75 @@
+\section{Part II - Monovariable control}
+\subsection{Problem 1 - Pitch angle PD controller}
+A PD controller is to be added to control the pitch angle $p$. This controller is given as:
+\begin{gather}
+    \tilde{V}_d = K_{pp}(\tilde{p}_c-\tilde{p})-K_{pd}{\dot{\tilde{p}}}\label{eq:pd-controller}
+\end{gather}
+From equation \eqref{eq:lin_model_pitch} we see that $\tilde{V}_d = \frac{\ddot{\tilde{p}}}{K_1}.$ Substituting this into the equation \eqref{eq:pd-controller} for the PD controller gives:
+\begin{gather*}
+    \tilde{\ddot{p}} = K_1(K_{pp}(\tilde{p}_c - \tilde{p}) - K_{pd}\tilde{\dot{p}} \\
+    \ddot{\tilde{p}} + K_1K_{pd}\dot{\tilde{p}} + K_1K_{pp}\tilde{p} = K_1 K_{pp} \tilde{p}_c
+\end{gather*}
+Using the Laplace transform and assuming $\tilde{p}(0) = \dot{\tilde{p}}(0) = 0$, gives us the transfer function:
+\begin{gather*}
+    s^2\tilde{p}(s) + sK_1K_{pd}\tilde{p}(s) + K_1K_{pp}\tilde{p}(s) = K_1K_{pp}\tilde{p}_c(s) \\
+    \tilde{p}(s)(s^2 + sK_1K_{pd} + K_1K_{pp}) = K_1K_{pp}\tilde{p}_c(s) \\
+    \frac{\tilde{p}(s)}{\tilde{p}_c(s)} = \frac{K_1K_{pp}}{s^2 + K_1K_{pd}s + K_1K_{pp}}
+\end{gather*}
+The linearized pitch dynamics can be regarded as a second-order linear system, generally given by the transfer function:
+\begin{gather*}
+    \frac{K\omega_0^2}{s^2 + 2\zeta\omega_0s + \omega_0^2}
+\end{gather*}
+We wish to obtain critical damping, in order to get the system to return to its equilibrium in the minimum amount of time without overshooting. Hence, we set $\zeta = 1$. The general transfer function for this type of system is given by:
+\begin{gather*}
+    \frac{K\omega_0^2}{s^2 + 2\omega_0s + \omega_0^2}
+\end{gather*}
+Comparing the transfer function of our system (equation number) to the general one (equation number), gives the following equations for the regulator parameters:
+\begin{gather*}
+    K_{pp} = \frac{\omega_0^2}{K_1} \text{ and } K_{pd} = 2 \frac{\omega_0}{K_1}
+\end{gather*}
+Now, we need to tune the controller gains $K_{pp}$ and $K_{pd}$. Our goal is to make the controller regulate the pitch angle rapidly to its desired value, without excessive oscillations. The natural frequency $\omega_o$ decides the rapidness of the pitch regulation. Increasing $\omega_o$ will make the controller react to pitch changes faster. This is because we move the poles of the system further into the left plane, seen by examining the the denominator of (equation number):
+\begin{gather*}
+    (s + \omega_0)^2
+\end{gather*}
+ Looking at the expressions for  $K_{pp}$ and $K_{pd}$ (equation number) and (equation number), we see that they're both dependant of $\omega_0$. Unsurprisingly, this means that tuning of the controller gains influences the closed-loop eigenvalues and the pitch response. A higher value for $K_{pp}$ for instance, will move the eigenvalues to the left in the complex plane, and give faster pitch response. However, there is a limit to how much the controller gains, and thus the natural frequency, may be increased. Increasing it too much may damage the helicopter, or make it unstable. 
+ Through a process starting with initial guesstimates, followed by tuning by trial and error, we found values that gave us a satisfying response:
+\begin{gather*}
+    K_{pp} = 14 \\ 
+    K_{pd} = 9.765
+\end{gather*}
+
+EVENTUELT DISKUSJON OM PD VS. FEED FORWARD.
+
+\subsection{Problem 2 - Travel rate P controller}
+We now aim to control the travel rate $\dot{\tilde{\lambda}}$ using a simple P controller:
+\begin{gather*}
+    \tilde{p}_c = K_{rp}(\dot{\tilde{\lambda}}_c - \dot{\tilde{\lambda}})
+\end{gather*}
+where $K_{rp} < 0$. We now assume that the pitch angle is controlled perfectly, that is $\tilde{p} = \tilde{p}_c$. Substituting (equation number) into the equation for the P controller gives:
+\begin{gather*}
+    \ddot{\tilde{\lambda}} = K_3(K_{rp}(\dot{\tilde{\lambda}}_c - \dot{\tilde{\lambda}})) \\ 
+    \ddot{\tilde{\lambda}} + K_3K_{rp}\dot{\tilde{\lambda}} = K_3K_{rp}\dot{\tilde{\lambda}}_c
+\end{gather*}
+Using the Laplace transform and assuming  $\tilde{\lambda}(0) = \dot{\tilde{\lambda}}(0) = 0$, gives us the transfer function from the reference $\dot{\tilde{\lambda}}_c$ to the travel rate $\dot{\tilde{\lambda}}$:
+\begin{gather*}
+    s\dot{\tilde{\lambda}}(s) + K_3K_{rp}\dot{\tilde{\lambda}}(s) = K_3K_{rp}\dot{\tilde{\lambda}}_c(s) \\
+    \dot{\tilde{\lambda}}(s)(s + K_3K_{rp}) = K_3K_{rp}\dot{\tilde{\lambda}}_c(s) \\
+    \frac{\dot{\tilde{\lambda}}(s)}{\dot{\tilde{\lambda}}_c(s)} = \frac{K_3K_{rp}}{s + K_3K_{rp}}
+\end{gather*}
+The transfer function can be written as:
+\begin{gather*}
+    \frac{ \dot{\tilde{\lambda}}(s)}{\dot{\tilde{\lambda}}_c(s)} = \frac{\rho}{s + \rho}
+\end{gather*}
+where $\rho = K_3K_{rp}$. We tested the helicopter's response for different values for $K_{rp}$, and found that $K_{rp} = -1.2$ gave a fast and accurate response. 
+
+
+
+
+
+
+
+
+\newpage
 \newcommand{\texMacro}[2]{\texttt{\textbackslash{#1}\{#2\}}}
 \section{General LaTeX tips}\label{sec:latex_tips}
 Some tips were given in \Cref{sec:intro}, and this section will elaborate with some more concrete examples.

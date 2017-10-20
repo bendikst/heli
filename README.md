@@ -1,2 +1,8 @@
 # labreport
-This repository contains a template for how lab reports or assignments can be written in LaTeX. It also contains some hints to useful packages for scientific writing in general. The template is intended for helicopter labs in the courses TTK4115 and TTK4135 at the Department of Engineering Cybernetics, NTNU.
+Things to be done:
+ - Evt part 4, problem 1/2 for den andre regulatoren fra part 3, ref. innleveringssiden (filene)
+ - Plots fra nesten alt, jamfør tidligere leverte?
+ - Skriv inn alle formler og utledninger som mangler
+ - Skriv tekst og diskusjon
+ - Forbered til fremføring
+ - La til elev.offset i counts inne i heli 3D. Kan kommeneteres på et vis?

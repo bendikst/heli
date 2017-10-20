@@ -34,12 +34,7 @@ You can write Latex in your MATLAB figures. The script used to create \Cref{fig:
 \label{fig:constraint_png_large}
 \end{figure}
 
-\begin{figure}[htb]
-	\centering
-		\includegraphics[width=0.8\textwidth]{figures/constraint_eps.eps}
-	\caption{A plot in EPS format --- a much better idea.}
-\label{fig:constraint_eps}
-\end{figure}
+
 
 Remember to reference all figures in the text. Figures have a number and should be referenced by that number (again, always use dynamic references). They also tend to float around, meaning they generally don't appear where you ask them to in the text. This is fine, do not try to force a figure (or a table) to appear in a particular place. As long a you refer to it, it's easy to find. No figure should be included without being referenced in the text.
 
@@ -51,3 +46,128 @@ Generally, let Latex handle the documentation layout. This is one of the main re
 All problems should have their own discussion of results. 
 
 Remember: all plots and results need a description, explanation, and discussion.
+
+
+\section{Part III - Multivariable control}\label{sec:part3}
+\subsection{Problem 1}
+We put the system in a state-space formulation on the form:
+\begin{gather*}
+    \mathbf{\dot{x}} = \mathbf{Ax} + \mathbf{Bu}
+\end{gather*}
+where A and B are matrices, and our state and input vector are: 
+\begin{gather*}
+    \mathbf{x} = 
+    \begin{bmatrix}
+        \tilde{p}\\\tilde{\dot{p}}\\\tilde{\dot{e}}
+        \end{bmatrix}
+     \text{  and  } \mathbf{u} = 
+    \begin{bmatrix} \tilde{V_s}\\\tilde{V_d} \end{bmatrix}
+\end{gather*}
+This gives us the following state-space model:
+\begin{gather*}
+     \begin{bmatrix}
+        \tilde{\dot{p}}\\\tilde{\ddot{p}}\\\tilde{\ddot{e}}
+    \end{bmatrix}
+    \text{ + } \begin{bmatrix}
+        0 & 1 & 0 \\
+        0 & 0 & 0 \\
+        0 & 0 & 0 \\ \end{bmatrix}
+    \begin{bmatrix}
+        \tilde{p}\\\tilde{\dot{p}}\\\tilde{\dot{e}}
+    \end{bmatrix}
+    \text{ = } \begin{bmatrix}
+        0 & 0 \\
+        0 & K_1 \\
+        K_2 & 0 \\
+    \end{bmatrix}
+    \begin{bmatrix} \tilde{V_s}\\\tilde{V_d} \end{bmatrix}
+\end{gather*}
+
+\subsection{Problem 2}
+We now aim to track the reference $\mathbf{r}
+= \begin{bmatrix} \tilde{p_c,} & \tilde{\dot{e_c}}
+\end{bmatrix}^T$ for the pitch angle $\tilde{p}$ and elevation rate $\dot{\tilde{e}}$. The reference values $\tilde{p}_c$ and $\dot{\tilde{e}}_c$ are given by the joystick, the x-axis and y-axis respectively. Firstly, we examine if the system is controllable. The controllability matrix is given by:
+\begin{gather*}
+    \mathcal{C} = 
+    \begin{bmatrix} \mathbf{B} & \mathbf{AB} &
+    \mathbf{A^2B} \end{bmatrix}
+    = \begin{bmatrix}
+    0 & 0 & 0 & K_1 & 0 & 0 \\
+    0 & K_1 & 0 & 0 & 0 & 0 \\
+    K_2 & 0 & 0 & 0 & 0 & 0
+    \end{bmatrix}
+\end{gather*}
+We see that $\mathcal{C}$ has full rank, which means that the system is controllable. In order to actually control the system, we implement a controller of the form:
+\begin{gather*}
+    \mathbf{u} = \mathbf{Pr} - \mathbf{Kx}
+\end{gather*}
+In the controller, $\mathbf{r}$ is the reference given by the joystick output. The matrix $\mathbf{K}$ corresponds to the linear quadraric regulator (LQR) for which the control input $\mathbf{u} = -\mathbf{Kx}$ optimizes the cost function
+\begin{gather*}
+    \mathit{J} = \int_{0}^{\infty}(\mathbf{x}^T(t)
+    \mathbf{Qx}(t) + \mathbf{u}^T(t)\mathbf{Ru}(t))
+    \mathit{dt}
+\end{gather*}
+The matrix $\mathbf{K}$ is obtained by using the MATLAB command K = lqr(A,B,Q,R), where $\mathbf{Q}$ and $\mathbf{R}$ are weighting matrices. For simplicity, $\mathbf{Q}$ and $\mathbf{R}$ are diagonal. When deciding their elements we started with an initial guess, and tuned from there. We looked for values making the helicopter fast and accurate, and ended up with the following:
+\begin{gather*}
+    \mathbf{Q} = \begin{bmatrix}
+    91.2 & 0 & 0 \\ 
+    0 & 50 & 0 \\
+    0 & 0 & 100 \end{bmatrix}\textbf{, } \mathbf{R} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}
+\end{gather*}
+Our state-space model with the controller is
+\begin{gather*}
+     \mathbf{\dot{x}} = \mathbf{Ax} + \mathbf{B}(\mathbf{Pr} - \mathbf{Kx})
+\end{gather*}
+We want to obtain a solution such that  \( \mathbf{y}(t) \rightarrow \mathbf{r} \)  as t \(\rightarrow \infty\). When the output gets stable,  
+\(\mathbf{\dot{x}} \rightarrow 0\). We get:
+\begin{gather*}
+    0 = \mathbf{Ax_\infty} + \mathbf{B}(\mathbf{Pr} - \mathbf{Kx_\infty)} \\
+    (\mathbf{A} - \mathbf{BK})\mathbf{x_\infty} = -\mathbf{BPr} \\
+    \mathbf{x_\infty} = (\mathbf{BK} - \mathbf{A})^{-1}
+    \mathbf{BPr}
+\end{gather*}
+Substituting this into \(\mathbf{y_\infty} = \mathbf{Cx_\infty}\) yields:      
+\begin{gather*}
+    \mathbf{y_\infty} = 
+    \begin{bmatrix} \mathbf{C}(\mathbf{BK} - \mathbf{A})^{-1} \mathbf{B}\end{bmatrix}\mathbf{Pr}
+\end{gather*}
+which gives:
+\begin{gather*}
+    \mathbf{P} = 
+    \begin{bmatrix}\mathbf{C}(\mathbf{BK} - \mathbf{A})^{-1}\mathbf{B}\end{bmatrix}^{-1}
+\end{gather*}
+Our \textbf{K} and \textbf{P}:
+\begin{gather*}
+    \mathbf{K} = \begin{bmatrix}
+    0 & 0 & 10 \\
+    9.5499 & 9.0841 & 0 \end{bmatrix}\textbf{, } \mathbf{P} =
+    \begin{bmatrix} 0 & 10 \\ 9.5499 & 0 \end{bmatrix}
+\end{gather*}
+
+KOMMENTERE KONTROLLERVALG
+
+\subsection{Problem 3}
+We now modify the controller to include an integral effect for the elevation rate and the pitch angle. Including an integral effect makes our controller a PI controller, and results in two additional states. We call the new states $\gamma$ and $\zeta$, and their differential equations are given by:
+\begin{gather*}
+    \dot{\gamma} = \tilde{p} - \tilde{p_c}\\
+    \dot{\zeta} = \dot{\tilde{e}} - \dot{\tilde{e_c}}
+\end{gather*}
+The state vector and the input vector are now given by:
+\begin{gather*}
+    \mathbf{x} = \begin{bmatrix}
+    \tilde{p} \\ \tilde{\dot{p}} \\
+    \dot{\tilde{e}} \\ \gamma \\ \zeta \end{bmatrix}
+    \text{ and } \mathbf{u} = \begin{bmatrix}
+    \tilde{V_s} \\ \tilde{V_d} \end{bmatrix}
+\end{gather*}
+
+HER MÅ VI HA PLOTS HVOR VI SAMMENLIGNER HELIKOPTERETS RESPONS MED OG UTEN INTEGRALEFFEKT. EVT. NYE Q,R OG K MED FORKLARING. 
+
+
+
+
+
+
+
+
+
