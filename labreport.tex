@@ -2,6 +2,7 @@
 
 \usepackage{kyblab} % Contains all included packages. See kyblab.sty.
 \addbibresource{bibliography.bib} % Makes the bibliography file available to biblatex.
+\numberwithin{equation}{section}
 
 \begin{document}
 
@@ -21,7 +22,7 @@
 
 % Abstract
 \newpage
-\input{abstract}
+\input{sections/abstract}
 \thispagestyle{empty} % Avoid page numbering on the abstract page.
 
 % TOC
@@ -32,13 +33,14 @@
 % Main content
 \newpage
 \setcounter{page}{1}
-\include{intro}
-\include{part1}
-\include{part2}
-\include{part3}
-\include{part4}
-\include{conclusion}
-\include{appendix}
+\include{sections/intro}
+\include{sections/part1}
+\include{sections/part2}
+\include{sections/part3}
+\include{sections/part4}
+\include{sections/conclusion}
+\include{sections/TIPS_FRA_MAL}
+\include{sections/appendix}
 % \input simply inserts the contents of the file, while \include forces a \newpage.
 % See \input vs. \include: http://tex.stackexchange.com/questions/246/when-should-i-use-input-vs-include
 

@@ -24,7 +24,7 @@ From the output equation and the state vector, we can directly see that the matr
     \end{bmatrix}
 \end{equation}
 Furthermore, using the equations \eqref{eq:lin_model_pitch}-\eqref{eq:lin_model_travel}, the state equation can be written as
-\begin{equation}\nonumber
+\begin{equation}\label{eq:state_matrices_P4p1}
     \mathbf{\dot{x}} = 
     \begin{bmatrix} 
         \dot{\tilde{p}} \\ 
@@ -41,19 +41,17 @@ Furthermore, using the equations \eqref{eq:lin_model_pitch}-\eqref{eq:lin_model_
         K_2\tilde{V_s}\\ 
         x_6\\ 
         K_3 x_1 
-    \end{bmatrix} = \mathbf{Ax + Bu}
-\end{equation}
-which gives us the matrices
-\begin{align}\label{eq:state_matrices_P4p1}
-    &\mathbf{A} = \begin{bmatrix}
+    \end{bmatrix} =
+    \underbrace{
+    \begin{bmatrix}
         0 & 1 & 0 & 0 & 0 & 0 \\
         0 & 0 & 0 & 0 & 0 & 0 \\
         0 & 0 & 0 & 1 & 0 & 0 \\
         0 & 0 & 0 & 0 & 0 & 0 \\
         0 & 0 & 0 & 0 & 0 & 1 \\
         K_3 & 0 & 0 & 0 & 0 & 0
-    \end{bmatrix}, 
-    &\mathbf{B} = 
+    \end{bmatrix}}_\mathbf{A}\mathbf{x} + 
+    \underbrace{
     \begin{bmatrix}
         0 & 0 \\
         0 & K_1 \\
@@ -61,11 +59,10 @@ which gives us the matrices
         K_2 & 0 \\
         0 & 0 \\
         0 & 0 
-    \end{bmatrix}
-\end{align}
+    \end{bmatrix}}_\mathbf{B}\mathbf{u}
+\end{equation}
 
 \subsection{Problem 2 - Linear observer}\label{subsec:P4p2}
-
 In order to examine the observability of the system, we calculate the observabiliy matrix using
 \begin{equation}\label{eq:obs_matrix}
     {\mathcal {O}}={\begin{bmatrix}C\\CA\\CA^{2}\\\vdots \\CA^{n-1}\end{bmatrix}}
@@ -82,16 +79,25 @@ We know that the criteria for a system to be observable is that \eqref{eq:obs_ma
         0 & 0 & 0 & 0 & 0 & 1
     \end{bmatrix}}
 \end{equation}
-Hence, our system is indeed observable.
-\\Next, we wish to create a linear observer for the system of the form:
+Hence, our system is indeed observable.\\
+\\
+Next, we wish to create a linear observer for the system of the form:
 \begin{equation}\label{observer_system}
     \mathbf{\dot{\hat{x}} = A\hat{x} + Bu + L(y - C\hat{x})}
 \end{equation}
 where \textbf{L} is the observer gain matrix.
-Because the system is observable, we have the opportunity to place the poles of the system where we want, in order to obtain an optimal response. We can do this by choosing an appropriate gain matrix \textbf{L}. The estimator $\mathbf{\hat{x}}$ has the same poles as $\mathbf{A - LC}$. Generally, we want the error dynamics to be faster than the system itself. In practice, this means that the poles of $\mathbf{A - LC}$ should be placed further into the left half plane than the poles of $\mathbf{A - BK}$, which represents the system dynamics. Abiding by the [HVEM FANT PÅ DETTE] principle, we place the estimator poles on a circular arc in the left half plane, shown in [VIS FIGUR!!]The radius of this arc is determined by a multiple of the distance to the most negative pole of the original system. MATLAB provides a simple function place() to compute the observer gain matrix \textbf{L}. MATLAB code for implementing this is shown in [LEGG IN KODE]. \\
-\\Choosing a good gain matrix will be very important for this system, because although we want a fast estimator, the further into the left half plane the estimator poles are located, the more we will amplify noise in the measurements. In our project, we ended up placing the estimator poles on an arc with radius 13 times the distance of the most negative pole from the original system.\\
+Because the system is observable, we have the opportunity to place the poles of the system where we want in order to obtain an optimal response. We can do this by choosing an appropriate gain matrix \textbf{L}. The estimator $\mathbf{\hat{x}}$ has the same poles as $\mathbf{A - LC}$. Generally, we want the error dynamics to be faster than the system itself. In practice, this means that the poles of $\mathbf{A - LC}$ should be placed further into the left half plane than the poles of $\mathbf{A - BK}$, which represents the system dynamics. We place the estimator poles on a circular arc in the left half plane, shown in \cref{fig:Pole_placement_P4p2}. The radius of this arc is determined by a multiple of the distance to the most negative pole of the original system. MATLAB provides a simple function place() to compute the observer gain matrix \textbf{L}. MATLAB code for implementing this is shown in \cref{subsec:P4p2_init.m}.
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=0.8\textwidth]{figures/Pole_placement_P4p2_integral.eps}
+	\caption{Pole placement for the system with integral controller from part III. The system poles are locaten in blue on the right, while the observer poles are seen in red.}
+\label{fig:Pole_placement_P4p2}
+\end{figure}
+\\
+
+Choosing a ideal gain matrix will be very important for this system, because although we want a fast estimator, the further into the left half plane the estimator poles are located, the more we will amplify noise in the measurements. In our project, we ended up placing the estimator poles on an arc with radius 13 times the distance of the most negative pole from the original system.\\
 \\As in part 3, we tried tuning with different values for the matrices \textbf{Q} and \textbf{R} until the desired behavoiur was reached. We seemed however to get the best results with similar values as in part III, see [REFERER TIL Q, R, K]. With the computed gain matrix
-\begin{equation}\nonumber
+\begin{equation}\label{eq:L_P4p2}
 \mathbf{L} = \begin{bmatrix}
 97,94 & 6,20 & -13,90\\
 2476,40 & 318,65 & -725,98\\
@@ -103,12 +109,31 @@ Because the system is observable, we have the opportunity to place the poles of 
 \end{equation}
 
 We were able to reach satisfying results with both controllers from part III, plots of the estimated values versus the real values for both controllers are shown below, as well as a simulink-diagram to show the implementation of the observer.
-LEGG INN PLOTTS HER! REAL VS ESTIMATE PÅ BEGGE TO
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=0.8\textwidth]{figures/Pole_placement_P4p2_integral.eps}
+	\caption{Pole placement for the system with integral controller from part III. The system poles are locaten in blue on the right, while the observer poles are seen in red.}
+\label{fig:Pole_placement_P4p2}
+\end{figure}
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=1\textwidth]{figures/superplots_P4p2_del2_integrate_best.PNG}
+	\caption{SKRIV CAPTION}
+\label{fig:Pole_placement_P4p2}
+\end{figure}
 
 SIMULINK AV OBSERVER!
 
 \subsection{Problem 3 - Observer without pitch}\label{subsec:P4p3}
-We aim to control our system by only measuring $\tilde{e}$ and $\tilde{\lambda}$. The output matrix \textbf{C} becomes:
+We aim to control our system by only measuring $\tilde{e}$ and $\tilde{\lambda}$. The output \textbf{y} and output matrix \textbf{C} becomes:
+\begin{equation}\label{eq:y_P4p3}
+\mathbf{y} = 
+\begin{bmatrix}
+\tilde{e}\\
+\tilde{\lambda}
+\end{bmatrix}
+\end{equation}
+and
 \begin{equation}\label{eq:C_P4p3}
 \mathbf{C} = 
     \begin{bmatrix}
@@ -140,8 +165,8 @@ We can clearly see that \eqref{eq:obs_matrix_calc_last} has full rank, so the sy
     \begin{bmatrix}
     1 & 0 & 0 & 0 & 0 & 0 \\
     0 & 0 & 1 & 0 & 0 & 0 
-    \end{bmatrix}
-\end{equation},
+    \end{bmatrix},
+\end{equation}
 which leads to the observability matrix
 \begin{equation}\nonumber
     \mathcal {O}=
@@ -160,15 +185,39 @@ which leads to the observability matrix
         0 & 0 & 0 & 0 & 0 & 0
     \end{bmatrix}}
 \end{equation}
-Now, the observability matrix has rank 4, which is not full rank. Hence, the system is not observable and it will be impossible to control with a state estimator. This is due to the fact that the pitch, $\tilde{p}$, can be found by differentiating $tilde{\lambda}$ twice and multiplying with a constant $K_3$. [SETT INN REFERANSE FRA OPPG1]. This is not the case for ...... 
-
+Now, the observability matrix has rank 4, which is not full rank. Hence the system is not observable and it will be impossible to control with a state estimator. This is due to the fact that the pitch, $\tilde{p}$, can be found by differentiating $\tilde{\lambda}$ twice and multiplying with a constant $K_3$, \eqref{eq:lin_model_travel}. However, this is not the case when we try to replace $\tilde{\lambda}$ with $\tilde{p}$ as a measured state. If we try to integrate $\tilde{\lambda}$ twice in order to find the pitch, we will end up with unknown constants, and thus information will be lost.\\
+\\
+When testing the helicopter with \eqref{eq:y_P4p3} as the measured states, it turned out to be difficult to acquire a good response. Even though it is possible in theory to control the system with only these two measured states, it did not work well in practice, as we can see from [SETT INN PLOT FRA P4p3]. This can be explained by the fact that we differentiate $\tilde{\lambda}$ three times to get the pitch rate $\dot{\tilde{p}}$. During this action we also differentiate measurement noise, which results in a significant amplification of this noise. After some testing, we chose the estimator poles to be on the real axis, and much lower values of L compared to \eqref{eq:L_P4p2}:
 \begin{equation}\nonumber
 \mathbf{L} = \begin{bmatrix}
-14,62 &	0,69 & -2,08\\
-55,29 & 5,41 & -16,11\\
--0,13 & 14,51 & 0,48\\
--0,60 & 55,75 & 3,37\\
-2,27 & -0,65 & 14,27\\
-16,44 & -5,27 & 52,36
+1,95 & -90,72\\
+1,19 & -44,14\\
+6,50 & -0,01\\
+10,00 &	-0,012\\
+-0,07 &	10,50\\
+-0,54 &	38,00
 \end{bmatrix}
+\end{equation}
+This will lead to a slower observer, but less amplification of noise, and by placing poles on the real axis, we achieve as much damping as possible. After tuning of the weighting matrices, we found a somewhat acceptable behaviour when reducing the integral effect by giving the last two diagonal elements of the weighting matrix \textbf{Q} small values, and making power less available by increasing values of \textbf{R}. We ended up with the following matrices:
+\begin{align}\nonumber
+&\mathbf{Q} = 
+\begin{bmatrix}
+    8 & 0 & 0 & 0 & 0\\
+    0 & 4 & 0 & 0 & 0\\
+    0 & 0 & 50 & 0 & 0\\
+    0 & 0 & 0 & 0.01 & 0\\
+    0 & 0 & 0 & 0 & 0.01
+\end{bmatrix},
+&\mathbf{R} =
+\begin{bmatrix}
+    1000 & 0\\
+    0 & 1000
+\end{bmatrix},
+\end{align}
+\begin{equation}\nonumber
+\mathbf{K} =
+\begin{bmatrix}
+    0 & 0 & 0.3149 & 0 & 0.0032\\
+    0.1090 & 0.6124 & 0 & 0.0032 & 0
+\end{bmatrix}.
 \end{equation}
