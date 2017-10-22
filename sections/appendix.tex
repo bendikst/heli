@@ -4,17 +4,83 @@
 \section{MATLAB Code}\label{sec:matlab}
 This section contains our MATLAB code, but only the relevant and changed parts for each problem. 
 
-\subsection{Part IV - Problem 2}\label{subsec:P4p2_init.m}
-\lstinputlisting{code/P4p2_latex.m}
+\subsection{Part II}\label{subsec:P2_init.m}
+\lstinputlisting{code/code_til_latex/P2_init.m}
+
+\subsection{Part III}\label{subsec:P3_init.m}
+\lstinputlisting{code/code_til_latex/P3_init.m}
+
+\subsection{Part IV}\label{subsec:P4p2_init.m}
+\lstinputlisting{code/code_til_latex/P4_init.m}
 
 \section{Simulink Diagrams}\label{sec:simulink}
-This section should contain your Simulink diagrams. Just like the plots, these should be in vector format, like in \Cref{fig:simulink}. Make them tidy enough to understand.
-
-\subsection{A Simulink Diagram}
-\Cref{fig:simulink} shows a Simulink diagram. You can use the \texttt{print\_simulink.m} function, included in the source code repository for this document, to export a Simulink model to EPS\@.
+This section contains our Simulink models, given chronologically. Only the relevant and changed parts are shown. Lastly, we have included the top level final Simulink diagram.
 \begin{figure}[htb]
 	\centering
-		\includegraphics[width = \textwidth]{figures/simulink_fra_mal.pdf}
-	\caption{A Simulink diagram.}
-\label{fig:simulink}
+		\includegraphics[width=\textwidth]{models/P2p1.pdf}
+	\caption{Part II - Problem 1, Simulink model}
+\label{fig:P2p1}
 \end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{models/P2p1_PD.PNG}
+	\caption{Part II - Problem 1, The PD controller for pitch angle}
+\label{fig:P2p1_PD}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{models/P2p2.pdf}
+	\caption{Part II - Problem 2, Simulink model}
+\label{fig:P2p2}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{models/P2p2_travel_controller.PNG}
+	\caption{Part II - Problem 2, The P controller for travel rate}
+\label{fig:P2p2_P}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{models/P3p2.pdf}
+	\caption{Part III - Problem 2, Simulink model}
+\label{fig:P3p2}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{models/P3p2_LQR.PNG}
+	\caption{Part III - Problem 2, The LQR}
+\label{fig:P3p2_LQR}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{models/P3p3.pdf}
+	\caption{Part III, Problem 3, Simulink model}
+\label{fig:P3p3}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{models/P3p3_PI_controller.PNG}
+	\caption{Part III - Problem 3, The PI controller}
+\label{fig:P3p3_PI}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{models/P4_estimator_control.pdf}
+	\caption{Part IV, Implementation of the estimator controller}
+\label{fig:P4_observer}
+\end{figure}
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{models/All_test.pdf}
+	\caption{The final simulink diagram}
+\label{fig:final_simulink}
+\end{figure}
+

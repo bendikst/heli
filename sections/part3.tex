@@ -8,7 +8,7 @@ where A and B are matrices, and our state and input vector are:
 \begin{gather*}
     \mathbf{x} = 
     \begin{bmatrix}
-        \tilde{p}\\\tilde{\dot{p}}\\\tilde{\dot{e}}
+        \tilde{p}\\\dot{\tilde{p}}\\\dot{\tilde{e}}
         \end{bmatrix}
      \text{  and  } \mathbf{u} = 
     \begin{bmatrix} \tilde{V_s}\\\tilde{V_d} \end{bmatrix}
@@ -16,16 +16,16 @@ where A and B are matrices, and our state and input vector are:
 This gives us the following state-space model:
 \begin{gather*}
      \begin{bmatrix}
-        \tilde{\dot{p}}\\\tilde{\ddot{p}}\\\tilde{\ddot{e}}
+        \dot{\tilde{p}}\\\ddot{\tilde{p}}\\\ddot{\tilde{e}}
     \end{bmatrix}
-    \text{ + } \begin{bmatrix}
+    \text{ = } \begin{bmatrix}
         0 & 1 & 0 \\
         0 & 0 & 0 \\
         0 & 0 & 0 \\ \end{bmatrix}
     \begin{bmatrix}
-        \tilde{p}\\\tilde{\dot{p}}\\\tilde{\dot{e}}
+         \tilde{p}\\\dot{\tilde{p}}\\\dot{\tilde{e}}
     \end{bmatrix}
-    \text{ = } \begin{bmatrix}
+    \text{ + } \begin{bmatrix}
         0 & 0 \\
         0 & K_1 \\
         K_2 & 0 \\
@@ -51,20 +51,22 @@ We see that $\mathcal{C}$ has full rank, which means that the system is controll
 \begin{gather*}
     \mathbf{u} = \mathbf{Pr} - \mathbf{Kx}
 \end{gather*}
-In the controller, $\mathbf{r}$ is the reference given by the joystick output. The matrix $\mathbf{K}$ corresponds to the linear quadraric regulator (LQR) for which the control input $\mathbf{u} = -\mathbf{Kx}$ optimizes the cost function
+In the controller, $\mathbf{r}$ is the reference given by the joystick output. The matrix $\mathbf{K}$ corresponds to the linear quadratic regulator (LQR) for which the control input $\mathbf{u} = -\mathbf{Kx}$ optimizes the cost function
 \begin{gather*}
     \mathit{J} = \int_{0}^{\infty}(\mathbf{x}^T(t)
     \mathbf{Qx}(t) + \mathbf{u}^T(t)\mathbf{Ru}(t))
     \mathit{dt}
 \end{gather*}
-The matrix $\mathbf{K}$ is obtained by using the MATLAB command K = lqr(A,B,Q,R), where $\mathbf{Q}$ and $\mathbf{R}$ are weighting matrices. For simplicity, $\mathbf{Q}$ and $\mathbf{R}$ are diagonal. When deciding their elements we started with an initial guess, and tuned from there. We looked for values making the helicopter fast and accurate, and ended up with the following:
+The matrix $\mathbf{K}$ is obtained by using the MATLAB command K = lqr(A,B,Q,R). $\mathbf{Q}$ and $\mathbf{R}$ are weighting matrices, used as design parameters. \\
+\\For simplicity, $\mathbf{Q}$ and $\mathbf{R}$ are diagonal. Obtaining a fast and accurate response was our main focus when deciding their values. In order to achieve this, we needed to penalize the deviation of the output more. This is done by increasing the elements on the diagonal of $\mathbf{Q}$, which correspond to the states. Choosing large values for $\mathbf{Q}$ means trying to stabilize the system with the least possible changes in the states, which gives a fast response.\\ 
+\\When deciding the elements of $\mathbf{Q}$ and $\mathbf{R}$, we started with an initial guess. With our goal of obtaining a fast convergence of the output in mind, we tuned from there. This design is evident with the elements of $\mathbf{Q}$ being high compared to the elements of $\mathbf{R}$:
 \begin{gather*}
     \mathbf{Q} = \begin{bmatrix}
     91.2 & 0 & 0 \\ 
     0 & 50 & 0 \\
     0 & 0 & 100 \end{bmatrix}\textbf{, } \mathbf{R} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}
 \end{gather*}
-Our state-space model with the controller is
+\\Our state-space model with the controller is
 \begin{gather*}
      \mathbf{\dot{x}} = \mathbf{Ax} + \mathbf{B}(\mathbf{Pr} - \mathbf{Kx})
 \end{gather*}
@@ -93,8 +95,7 @@ Our \textbf{K} and \textbf{P}:
     9.5499 & 9.0841 & 0 \end{bmatrix}\textbf{, } \mathbf{P} =
     \begin{bmatrix} 0 & 10 \\ 9.5499 & 0 \end{bmatrix}
 \end{gather*}
-
-KOMMENTERE KONTROLLERVALG
+\ The Matlab script for this problem can be found in \cref{subsec:P3_init.m}. The Simulink model can be found in \cref{sec:simulink} \cref{fig:P3p2} and \cref{fig:P3p2_LQR}.
 
 \subsection{Problem 3 - PI controller}
 We now modify the controller to include an integral effect for the elevation rate and the pitch angle. Including an integral effect makes our controller a PI controller, and results in two additional states. We call the new states $\gamma$ and $\zeta$, and their differential equations are given by:
@@ -110,8 +111,37 @@ The state vector and the input vector are now given by:
     \text{ and } \mathbf{u} = \begin{bmatrix}
     \tilde{V_s} \\ \tilde{V_d} \end{bmatrix}
 \end{gather*}
+Adding an integral effect changes the dimensions of matrices $\mathbf{A}$, $\mathbf{B}$, $\mathbf{Q}$ and $\mathbf{K}$. Using $\mathbf{Q}$ and $\mathbf{R}$ from the previous problem as an initial guess, we tuned the new weighting matrices with the same objective as before. $\mathbf{K}$ were then found from K = lqr(A,B,Q,R):
+\begin{gather}\label{eq:P3_weighting_matrices}
+    \mathbf{Q} = \begin{bmatrix}
+    91.2 & 0 & 0 & 0 & 0 \\
+    0 & 50 & 0 & 0 & 0 \\
+    0 & 0 & 100 & 0 & 0 \\
+    0 & 0 & 0 & 50 & 0 \\
+    0 & 0 & 0 & 0 & 50 \end{bmatrix}\text{, }
+    \mathbf{R} = \begin{bmatrix}
+    1 & 0 \\
+    0 & 1 \end{bmatrix} \\\nonumber \\
+    \mathbf{K} = \begin{bmatrix}\nonumber
+    0 & 0 & 15.7999 & 0 & 7.0711\\
+   15.3004 & 10.1047 & 0 & 7.0711 & 0 \end{bmatrix}
+\end{gather}
+\ We used the same matrix $\mathbf{P}$ as in problem 2.\\ \\The step response of the helicopter without and with integral effect can be seen in \cref{fig:P3p2_plot} and \cref{fig:P3p3_plot} respectively. We see that the difference in elevation is clear. With the integral effect, the helicopter is able to maintain the reference position. This is a result of the added integrating states.
 
-HER MÅ VI HA PLOTS HVOR VI SAMMENLIGNER HELIKOPTERETS RESPONS MED OG UTEN INTEGRALEFFEKT. EVT. NYE Q,R OG K MED FORKLARING. 
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{figures/P3p2_good.pdf}
+	\caption{Helicopter response without integral effect, pitch on top and elevation below}
+\label{fig:P3p2_plot}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=\textwidth]{figures/P3p3_good.pdf}
+	\caption{Helicopter response with integral effect, pitch on top and elevation below}
+\label{fig:P3p3_plot}
+\end{figure}
 
 
 
@@ -121,3 +151,5 @@ HER MÅ VI HA PLOTS HVOR VI SAMMENLIGNER HELIKOPTERETS RESPONS MED OG UTEN INTEG
 
 
 
+
+The Matlab script for this problem can be found in \cref{subsec:P3_init.m}. The Simulink model can be found in \cref{sec:simulink} \cref{fig:P3p3} and \cref{fig:P3p3_PI}.

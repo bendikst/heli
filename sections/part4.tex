@@ -63,11 +63,11 @@ Furthermore, using the equations \eqref{eq:lin_model_pitch}-\eqref{eq:lin_model_
 \end{equation}
 
 \subsection{Problem 2 - Linear observer}\label{subsec:P4p2}
-In order to examine the observability of the system, we calculate the observabiliy matrix using
+In order to examine the observability of the system, we calculate the observability matrix using
 \begin{equation}\label{eq:obs_matrix}
     {\mathcal {O}}={\begin{bmatrix}C\\CA\\CA^{2}\\\vdots \\CA^{n-1}\end{bmatrix}}
 \end{equation}
-We know that the criteria for a system to be observable is that \eqref{eq:obs_matrix} has full rank. In our case, this is achieved after the two first computations in the observability matrix:
+We have learned from\cite{Lecture_5} that the criteria for a system to be observable is that \eqref{eq:obs_matrix} has full rank. In our case, this is achieved after the two first computations in the observability matrix:
 \begin{equation}\label{eq:obs_matrix_calc}
     {\mathcal {O}}_{2}=
     {\begin{bmatrix}
@@ -90,13 +90,13 @@ Because the system is observable, we have the opportunity to place the poles of 
 \begin{figure}[htb]
 	\centering
 		\includegraphics[width=0.8\textwidth]{figures/Pole_placement_P4p2_integral.eps}
-	\caption{Pole placement for the system with integral controller from part III. The system poles are locaten in blue on the right, while the observer poles are seen in red.}
+	\caption{Pole placement for the system with integral controller from part III. The system poles are located in blue on the right, while the observer poles are seen in red.}
 \label{fig:Pole_placement_P4p2}
 \end{figure}
 \\
 
 Choosing a ideal gain matrix will be very important for this system, because although we want a fast estimator, the further into the left half plane the estimator poles are located, the more we will amplify noise in the measurements. In our project, we ended up placing the estimator poles on an arc with radius 13 times the distance of the most negative pole from the original system.\\
-\\As in part 3, we tried tuning with different values for the matrices \textbf{Q} and \textbf{R} until the desired behavoiur was reached. We seemed however to get the best results with similar values as in part III, see [REFERER TIL Q, R, K]. With the computed gain matrix
+\\As in part 3, we tried tuning with different values for the matrices \textbf{Q} and \textbf{R} until the desired behaviour was reached. We seemed however to get the best results with similar values as in part III, see \cref{eq:P3_weighting_matrices}. With the computed gain matrix
 \begin{equation}\label{eq:L_P4p2}
 \mathbf{L} = \begin{bmatrix}
 97,94 & 6,20 & -13,90\\
@@ -107,23 +107,7 @@ Choosing a ideal gain matrix will be very important for this system, because alt
 786,98 & -148,13 & 2412,86
 \end{bmatrix}
 \end{equation}
-
-We were able to reach satisfying results with both controllers from part III, plots of the estimated values versus the real values for both controllers are shown below, as well as a simulink-diagram to show the implementation of the observer.
-\begin{figure}[htb]
-	\centering
-		\includegraphics[width=0.8\textwidth]{figures/Pole_placement_P4p2_integral.eps}
-	\caption{Pole placement for the system with integral controller from part III. The system poles are locaten in blue on the right, while the observer poles are seen in red.}
-\label{fig:Pole_placement_P4p2}
-\end{figure}
-\begin{figure}[htb]
-	\centering
-		\includegraphics[width=1\textwidth]{figures/superplots_P4p2_del2_integrate_best.PNG}
-	\caption{SKRIV CAPTION}
-\label{fig:Pole_placement_P4p2}
-\end{figure}
-
-SIMULINK AV OBSERVER!
-
+we were able to reach satisfying results with both controllers from part III. Plots of the estimated values versus the real values for both controllers are shown below, first for the regular P controller in \cref{fig:P4p2_states_vs_obs} and then the PI controller in \cref{fig:P4p2_int_states_vs_obs}. The Simulink-diagram to show the implementation of the observer is included in \cref{fig:P4_observer}, \cref{sec:simulink}
 \subsection{Problem 3 - Observer without pitch}\label{subsec:P4p3}
 We aim to control our system by only measuring $\tilde{e}$ and $\tilde{\lambda}$. The output \textbf{y} and output matrix \textbf{C} becomes:
 \begin{equation}\label{eq:y_P4p3}
@@ -187,7 +171,7 @@ which leads to the observability matrix
 \end{equation}
 Now, the observability matrix has rank 4, which is not full rank. Hence the system is not observable and it will be impossible to control with a state estimator. This is due to the fact that the pitch, $\tilde{p}$, can be found by differentiating $\tilde{\lambda}$ twice and multiplying with a constant $K_3$, \eqref{eq:lin_model_travel}. However, this is not the case when we try to replace $\tilde{\lambda}$ with $\tilde{p}$ as a measured state. If we try to integrate $\tilde{\lambda}$ twice in order to find the pitch, we will end up with unknown constants, and thus information will be lost.\\
 \\
-When testing the helicopter with \eqref{eq:y_P4p3} as the measured states, it turned out to be difficult to acquire a good response. Even though it is possible in theory to control the system with only these two measured states, it did not work well in practice, as we can see from [SETT INN PLOT FRA P4p3]. This can be explained by the fact that we differentiate $\tilde{\lambda}$ three times to get the pitch rate $\dot{\tilde{p}}$. During this action we also differentiate measurement noise, which results in a significant amplification of this noise. After some testing, we chose the estimator poles to be on the real axis, and much lower values of L compared to \eqref{eq:L_P4p2}:
+When testing the helicopter with \eqref{eq:y_P4p3} as the measured states, it turned out to be difficult to acquire a good response. Even though it is possible in theory to control the system with only these two measured states, it did not work well in practice, as we can see from \cref{fig:P4p3}. This can be explained by the fact that we differentiate $\tilde{\lambda}$ three times to get the pitch rate $\dot{\tilde{p}}$. During this action we also differentiate measurement noise, which results in a significant amplification of this noise. After some testing, we chose the estimator poles to be on the real axis, and much lower values of L compared to \eqref{eq:L_P4p2}:
 \begin{equation}\nonumber
 \mathbf{L} = \begin{bmatrix}
 1,95 & -90,72\\
@@ -221,3 +205,21 @@ This will lead to a slower observer, but less amplification of noise, and by pla
     0.1090 & 0.6124 & 0 & 0.0032 & 0
 \end{bmatrix}.
 \end{equation}
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=1\textwidth]{figures/superplots_P4p2_del1_best_husk_ratenavn.PNG}
+	\caption{Part IV, problem 2 - P controller. Shows the real (yellow) and estimated (purple) states for pitch, pitch rate and elevation rate respectively. As we can see, the estimated states follows the real states quite well.}
+\label{fig:P4p2_states_vs_obs}
+\end{figure}
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=1\textwidth]{figures/superplots_P4p2_del2_integrate_best.PNG}
+	\caption{Part IV, problem 2 - PI controller. Shows the real (yellow) and estimated (purple) states for pitch, pitch rate and elevation rate respectively. Again, as we can see, the estimated states follows the real states quite well.}
+\label{fig:P4p2_int_states_vs_obs}
+\end{figure}
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=1\textwidth]{figures/superplots_P4p3.PNG}
+	\caption{Part IV, problem 3. Shows the real (yellow) and estimated (purple) states for pitch, pitch rate and elevation rate respectively. Clearly, this is not an optimal result as the real and estimated states differ quite a bit.}
+\label{fig:P4p3}
+\end{figure}

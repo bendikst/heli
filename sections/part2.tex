@@ -4,48 +4,51 @@ A PD controller is to be added to control the pitch angle $p$. This controller i
 \begin{gather}
     \tilde{V}_d = K_{pp}(\tilde{p}_c-\tilde{p})-K_{pd}{\dot{\tilde{p}}}\label{eq:pd-controller}
 \end{gather}
-From equation \eqref{eq:lin_model_pitch} we see that $\tilde{V}_d = \frac{\ddot{\tilde{p}}}{K_1}.$ Substituting this into the equation \eqref{eq:pd-controller} for the PD controller gives:
+From equation \eqref{eq:lin_model_pitch} we see that $\tilde{V}_d = \frac{\ddot{\tilde{p}}}{K_1}.$ Substituting this into the equation for the PD controller \eqref{eq:pd-controller} gives:
 \begin{gather*}
     \tilde{\ddot{p}} = K_1(K_{pp}(\tilde{p}_c - \tilde{p}) - K_{pd}\tilde{\dot{p}} \\
     \ddot{\tilde{p}} + K_1K_{pd}\dot{\tilde{p}} + K_1K_{pp}\tilde{p} = K_1 K_{pp} \tilde{p}_c
 \end{gather*}
-Using the Laplace transform and assuming $\tilde{p}(0) = \dot{\tilde{p}}(0) = 0$, gives us the transfer function:
-\begin{gather*}
-    s^2\tilde{p}(s) + sK_1K_{pd}\tilde{p}(s) + K_1K_{pp}\tilde{p}(s) = K_1K_{pp}\tilde{p}_c(s) \\
-    \tilde{p}(s)(s^2 + sK_1K_{pd} + K_1K_{pp}) = K_1K_{pp}\tilde{p}_c(s) \\
+Using the Laplace transform and assuming $\tilde{p}(0) = \dot{\tilde{p}}(0) = 0$, gives us the following transfer function:
+\begin{gather}
+    s^2\tilde{p}(s) + sK_1K_{pd}\tilde{p}(s) + K_1K_{pp}\tilde{p}(s) = K_1K_{pp}\tilde{p}_c(s)\nonumber \\
+    \tilde{p}(s)(s^2 + sK_1K_{pd} + K_1K_{pp}) = K_1K_{pp}\tilde{p}_c(s)\nonumber \\
     \frac{\tilde{p}(s)}{\tilde{p}_c(s)} = \frac{K_1K_{pp}}{s^2 + K_1K_{pd}s + K_1K_{pp}}
-\end{gather*}
+    \label{eq:transfer-func}
+\end{gather}
 The linearized pitch dynamics can be regarded as a second-order linear system, generally given by the transfer function:
 \begin{gather*}
-    \frac{K\omega_0^2}{s^2 + 2\zeta\omega_0s + \omega_0^2}
+    h(s) = \frac{K\omega_0^2}{s^2 + 2\zeta\omega_0s + \omega_0^2}
 \end{gather*}
 We wish to obtain critical damping, in order to get the system to return to its equilibrium in the minimum amount of time without overshooting. Hence, we set $\zeta = 1$. The general transfer function for this type of system is given by:
-\begin{gather*}
-    \frac{K\omega_0^2}{s^2 + 2\omega_0s + \omega_0^2}
-\end{gather*}
-Comparing the transfer function of our system (equation number) to the general one (equation number), gives the following equations for the regulator parameters:
-\begin{gather*}
+\begin{gather}
+    h(s) = \frac{K\omega_0^2}{s^2 + 2\omega_0s + \omega_0^2}
+    \label{eq:gen-transfer-func}
+\end{gather}
+Comparing the transfer function of our system, equation \eqref{eq:transfer-func}, to the general one, equation \eqref{eq:gen-transfer-func}, gives the following equations for the regulator parameters (with K = 1):
+\begin{gather}
     K_{pp} = \frac{\omega_0^2}{K_1} \text{ and } K_{pd} = 2 \frac{\omega_0}{K_1}
-\end{gather*}
-Now, we need to tune the controller gains $K_{pp}$ and $K_{pd}$. Our goal is to make the controller regulate the pitch angle rapidly to its desired value, without excessive oscillations. The natural frequency $\omega_o$ decides the rapidness of the pitch regulation. Increasing $\omega_o$ will make the controller react to pitch changes faster. This is because we move the poles of the system further into the left plane, seen by examining the the denominator of (equation number):
+    \label{eq:gains}
+\end{gather}
+Now, we need to tune the controller gains $K_{pp}$ and $K_{pd}$. Our goal is to make the controller regulate the pitch angle rapidly to its desired value, without excessive oscillations. The natural frequency $\omega_o$ decides the rapidness of the pitch regulation. Increasing $\omega_o$ will make the controller react to pitch changes faster. This is because we move the poles of the system further into the left plane, seen by examining the the denominator of equation \eqref{eq:gen-transfer-func}:
 \begin{gather*}
     (s + \omega_0)^2
 \end{gather*}
- Looking at the expressions for  $K_{pp}$ and $K_{pd}$ (equation number) and (equation number), we see that they're both dependant of $\omega_0$. Unsurprisingly, this means that tuning of the controller gains influences the closed-loop eigenvalues and the pitch response. A higher value for $K_{pp}$ for instance, will move the eigenvalues to the left in the complex plane, and give faster pitch response. However, there is a limit to how much the controller gains, and thus the natural frequency, may be increased. Increasing it too much may damage the helicopter, or make it unstable. 
+ Looking at the expressions for  $K_{pp}$ and $K_{pd}$, given in equation \eqref{eq:gains}, we see that they're both dependant of $\omega_0$. Unsurprisingly, this means that tuning of the controller gains influences the closed-loop eigenvalues and the pitch response. A higher value for $K_{pp}$ for instance, will move the eigenvalues to the left in the complex plane, and give faster pitch response. However, there is a limit to how much the controller gains, and thus the natural frequency, may be increased. Increasing it too much may damage the helicopter, or make it unstable. 
  Through a process starting with initial guesstimates, followed by tuning by trial and error, we found values that gave us a satisfying response:
 \begin{gather*}
     K_{pp} = 14 \\ 
     K_{pd} = 9.765
 \end{gather*}
-
-EVENTUELT DISKUSJON OM PD VS. FEED FORWARD.
+After including the PD controller for the pitch angle, we experienced that the helicopter was easier to control than it was when only feed forward was used. This was expected. The Matlab script for this problem can be found in \cref{subsec:P2_init.m}. The Simulink model can be found in \cref{sec:simulink} \cref{fig:P2p1} and \cref{fig:P2p1_PD}.
 
 \subsection{Problem 2 - Travel rate P controller}
 We now aim to control the travel rate $\dot{\tilde{\lambda}}$ using a simple P controller:
 \begin{gather*}
     \tilde{p}_c = K_{rp}(\dot{\tilde{\lambda}}_c - \dot{\tilde{\lambda}})
+    \label{eq:p-controller}
 \end{gather*}
-where $K_{rp} < 0$. We now assume that the pitch angle is controlled perfectly, that is $\tilde{p} = \tilde{p}_c$. Substituting (equation number) into the equation for the P controller gives:
+where $K_{rp} < 0$. We now assume that the pitch angle is controlled perfectly, that is $\tilde{p} = \tilde{p}_c$. Substituting equation \eqref{eq:lin_model_travel} into equation for the P controller gives:
 \begin{gather*}
     \ddot{\tilde{\lambda}} = K_3(K_{rp}(\dot{\tilde{\lambda}}_c - \dot{\tilde{\lambda}})) \\ 
     \ddot{\tilde{\lambda}} + K_3K_{rp}\dot{\tilde{\lambda}} = K_3K_{rp}\dot{\tilde{\lambda}}_c
@@ -60,4 +63,4 @@ The transfer function can be written as:
 \begin{gather*}
     \frac{ \dot{\tilde{\lambda}}(s)}{\dot{\tilde{\lambda}}_c(s)} = \frac{\rho}{s + \rho}
 \end{gather*}
-where $\rho = K_3K_{rp}$. We tested the helicopter's response for different values for $K_{rp}$, and found that $K_{rp} = -1.2$ gave a fast and accurate response.  
+where $\rho = K_3K_{rp}$. We tested the helicopter's response for different values for $K_{rp}$, and found that $K_{rp} = -1.2$ gave a fast and accurate response. The Matlab script for this problem can be found in \cref{subsec:P2_init.m}. The Simulink model can be found in \cref{sec:simulink} \cref{fig:P2p2} and \cref{fig:P2p2_P}. 
