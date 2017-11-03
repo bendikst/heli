@@ -65,9 +65,10 @@ Furthermore, using the equations \eqref{eq:lin_model_pitch}-\eqref{eq:lin_model_
 \subsection{Problem 2 - Linear observer}\label{subsec:P4p2}
 In order to examine the observability of the system, we calculate the observability matrix using
 \begin{equation}\label{eq:obs_matrix}
-    {\mathcal {O}}={\begin{bmatrix}C\\CA\\CA^{2}\\\vdots \\CA^{n-1}\end{bmatrix}}
+    \mathcal{O} = 
+    {\begin{bmatrix}\mathbf{C}\\ \mathbf{CA}\\ \mathbf{CA^2}\\ \vdots \\ \mathbf{CA^{n-1}}\end{bmatrix}}
 \end{equation}
-We have learned from\cite{Lecture_5} that the criteria for a system to be observable is that \eqref{eq:obs_matrix} has full rank. In our case, this is achieved after the two first computations in the observability matrix:
+We have learned from \cite{Lecture_5} that the criteria for a system to be observable is that equation \eqref{eq:obs_matrix} has full rank. In our case, this is achieved after the two first computations in the observability matrix:
 \begin{equation}\label{eq:obs_matrix_calc}
     {\mathcal {O}}_{2}=
     {\begin{bmatrix}
@@ -94,7 +95,6 @@ Because the system is observable, we have the opportunity to place the poles of 
 \label{fig:Pole_placement_P4p2}
 \end{figure}
 \\
-
 Choosing a ideal gain matrix will be very important for this system, because although we want a fast estimator, the further into the left half plane the estimator poles are located, the more we will amplify noise in the measurements. In our project, we ended up placing the estimator poles on an arc with radius 13 times the distance of the most negative pole from the original system.\\
 \\As in part 3, we tried tuning with different values for the matrices \textbf{Q} and \textbf{R} until the desired behaviour was reached. We seemed however to get the best results with similar values as in part III, see \cref{eq:P3_weighting_matrices}. With the computed gain matrix
 \begin{equation}\label{eq:L_P4p2}
@@ -125,7 +125,7 @@ and
     0 & 0 & 0 & 0 & 1 & 0 
     \end{bmatrix}
 \end{equation}
-Again, as in \ref{subsec:P4p2}, we use \eqref{eq:obs_matrix} to examine if the system is observable:
+Again, as in \ref{subsec:P4p2}, we use equation \eqref{eq:obs_matrix} to examine if the system is observable:
 \begin{equation}\label{eq:obs_matrix_calc_last}
     \mathcal {O}=
     {\begin{bmatrix}
@@ -143,7 +143,7 @@ Again, as in \ref{subsec:P4p2}, we use \eqref{eq:obs_matrix} to examine if the s
         0 & 0 & 0 & 0 & 0 & 0
     \end{bmatrix}}
 \end{equation}
-We can clearly see that \eqref{eq:obs_matrix_calc_last} has full rank, so the system is observable when measuring only $\tilde{e}$ and $\tilde{\lambda}$. However, if one only measures $\tilde{p}$ and $\tilde{e}$, this is not the case! The output matrix becomes:
+We can clearly see that equation \eqref{eq:obs_matrix_calc_last} has full rank, so the system is observable when measuring only $\tilde{e}$ and $\tilde{\lambda}$. However, if one only measures $\tilde{p}$ and $\tilde{e}$, this is not the case! The output matrix becomes:
 \begin{equation}\nonumber
 \mathbf{C} = 
     \begin{bmatrix}
@@ -171,7 +171,7 @@ which leads to the observability matrix
 \end{equation}
 Now, the observability matrix has rank 4, which is not full rank. Hence the system is not observable and it will be impossible to control with a state estimator. This is due to the fact that the pitch, $\tilde{p}$, can be found by differentiating $\tilde{\lambda}$ twice and multiplying with a constant $K_3$, \eqref{eq:lin_model_travel}. However, this is not the case when we try to replace $\tilde{\lambda}$ with $\tilde{p}$ as a measured state. If we try to integrate $\tilde{\lambda}$ twice in order to find the pitch, we will end up with unknown constants, and thus information will be lost.\\
 \\
-When testing the helicopter with \eqref{eq:y_P4p3} as the measured states, it turned out to be difficult to acquire a good response. Even though it is possible in theory to control the system with only these two measured states, it did not work well in practice, as we can see from \cref{fig:P4p3}. This can be explained by the fact that we differentiate $\tilde{\lambda}$ three times to get the pitch rate $\dot{\tilde{p}}$. During this action we also differentiate measurement noise, which results in a significant amplification of this noise. After some testing, we chose the estimator poles to be on the real axis, and much lower values of L compared to \eqref{eq:L_P4p2}:
+When testing the helicopter with equation \eqref{eq:y_P4p3} as the measured states, it turned out to be difficult to acquire a good response. Even though it is possible in theory to control the system with only these two measured states, it did not work well in practice, as we can see from \cref{fig:P4p3}. This can be explained by the fact that we differentiate $\tilde{\lambda}$ three times to get the pitch rate $\dot{\tilde{p}}$. During this action we also differentiate measurement noise, which results in a significant amplification of this noise. After some testing, we chose the estimator poles to be on the real axis, and much lower values of L compared to equation \eqref{eq:L_P4p2}:
 \begin{equation}\nonumber
 \mathbf{L} = \begin{bmatrix}
 1,95 & -90,72\\
