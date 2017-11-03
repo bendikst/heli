@@ -48,7 +48,7 @@ We now aim to control the travel rate $\dot{\tilde{\lambda}}$ using a simple P c
     \tilde{p}_c = K_{rp}(\dot{\tilde{\lambda}}_c - \dot{\tilde{\lambda}})
     \label{eq:p-controller}
 \end{gather*}
-where $K_{rp} < 0$. We now assume that the pitch angle is controlled perfectly, that is $\tilde{p} = \tilde{p}_c$. Substituting equation \eqref{eq:lin_model_travel} into equation for the P controller gives:
+where $K_{rp} < 0$. We now assume that the pitch angle is controlled perfectly, that is $\tilde{p} = \tilde{p}_c$. Substituting equation \eqref{eq:lin_model_travel} into equation \eqref{eq:p-controller} for the P controller gives:
 \begin{gather*}
     \ddot{\tilde{\lambda}} = K_3(K_{rp}(\dot{\tilde{\lambda}}_c - \dot{\tilde{\lambda}})) \\ 
     \ddot{\tilde{\lambda}} + K_3K_{rp}\dot{\tilde{\lambda}} = K_3K_{rp}\dot{\tilde{\lambda}}_c
@@ -63,4 +63,4 @@ The transfer function can be written as:
 \begin{gather*}
     \frac{ \dot{\tilde{\lambda}}(s)}{\dot{\tilde{\lambda}}_c(s)} = \frac{\rho}{s + \rho}
 \end{gather*}
-where $\rho = K_3K_{rp}$. We tested the helicopter's response for different values for $K_{rp}$, and found that $K_{rp} = -1.2$ gave a fast and accurate response. The Matlab script for this problem can be found in \cref{subsec:P2_init.m}. The Simulink model can be found in \cref{sec:simulink} \cref{fig:P2p2} and \cref{fig:P2p2_P}. 
+where $\rho = K_3K_{rp}$. We tested the helicopters response for different values for $K_{rp}$, and found that $K_{rp} = -1.2$ gave a fast and accurate response. The Matlab script for this problem can be found in \cref{subsec:P2_init.m}. The Simulink model can be found in \cref{sec:simulink} \cref{fig:P2p2} and \cref{fig:P2p2_P}. 
